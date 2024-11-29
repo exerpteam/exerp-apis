@@ -1,0 +1,1791 @@
+# API-first development with OpenAPI
+# This file will be used at compile time to generate Spring-MVC endpoint stubs using openapi-generator
+openapi: 3.0.3 # 3.1.0 support was added in openapi generator version 7.x
+info:
+  title: 'apiV7'
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://localhost:8080
+    description: Development server with TLS Profile
+
+paths:
+  /subscriptions/{subscriptionId}:
+    get:
+      tags:
+        - Subscriptions
+      summary: Get the subscription with the given id.
+      operationId: getSubscription
+      parameters:
+        - in: path
+          name: subscriptionId
+          required: true
+          schema:
+            type: string
+            format: subscription-id
+            description: The id of the subscription.
+        - in: query
+          name: include
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/GetSubscriptionIncludes'
+      responses:
+        200:
+          description: The subscription with additional information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionWithAdditionalInfo'
+        404:
+          description: The subscription not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                subscriptionNotFound:
+                  $ref: '#/components/examples/subscriptionNotFoundProblem'
+
+  /persons/{personId}/subscriptions:
+    get:
+      tags:
+        - Persons
+      summary: The list of subscriptions owned by the given person.
+      operationId: getPersonSubscriptions
+      parameters:
+        - $ref: '#/components/parameters/personIdPathParam'
+        - $ref: '#/components/parameters/pageQueryParam'
+        - $ref: '#/components/parameters/perPageQueryParam'
+        - in: query
+          name: notActive
+          schema:
+            type: boolean
+            default: false
+            description: Set true to include inactive subscriptions of the person in the response.
+      responses:
+        200:
+          description: The list of subscriptions owned by the given person.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionList'
+        404:
+          description: Person not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                personNotFound:
+                  $ref: '#/components/examples/personNotFoundProblem'
+
+  /persons/{personId}/clipCards:
+    get:
+      tags:
+        - Persons
+      summary: List clip cards owned by the given person
+      description: Sample service to demonstrate the capabilities of the framework we develop.
+      operationId: getPersonClipCards
+      parameters:
+        - $ref: '#/components/parameters/personIdPathParam'
+        - $ref: '#/components/parameters/pageQueryParam'
+        - $ref: '#/components/parameters/perPageQueryParam'
+      responses:
+        200:
+          description: A list of clip cards owned by the given member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClipCardList'
+        404:
+          description: Person not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                personNotFound:
+                  $ref: '#/components/examples/personNotFoundProblem'
+
+  /shoppingBaskets/{shoppingBasketId}:
+    get:
+      summary: Get shopping basket using the ID of shopping basket.
+      description: Get shopping basket using the ID of shopping basket.
+      operationId: getShoppingBasket
+      parameters:
+        - $ref: '#/components/parameters/shoppingBasketIdPathParam'
+      responses:
+        200:
+          description: An object that contains information about shopping basket.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingBasket'
+    delete:
+      summary: Delete a shopping basket
+      description: Delete a shopping basket
+      operationId: deleteShoppingBasket
+      parameters:
+        - $ref: '#/components/parameters/shoppingBasketIdPathParam'
+      responses:
+        204:
+          description: Shopping basket deleted
+        404:
+          description: Shopping basket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                shoppingBasketNotFound:
+                  $ref: '#/components/examples/shoppingBasketNotFoundProblem'
+
+  /persons/{personId}/checkIns:
+    get:
+      summary: List of check-ins/attends on a given date interval by the given person
+      operationId: getPersonCheckins
+      parameters:
+        - $ref: '#/components/parameters/personIdPathParam'
+        - $ref: '#/components/parameters/fromDateQueryParam'
+        - $ref: '#/components/parameters/toDateQueryParam'
+        - $ref: '#/components/parameters/attendsQueryParam'
+        - $ref: '#/components/parameters/checkInsQueryParam'
+        - $ref: '#/components/parameters/pageQueryParam'
+        - $ref: '#/components/parameters/perPageQueryParam'
+      responses:
+        200:
+          description: A list of attends and checkins by the given member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckInList'
+        404:
+          description: Person not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                personNotFound:
+                  $ref: '#/components/examples/personNotFoundProblem'
+
+  /shoppingBaskets/{shoppingBasketId}/payments:
+    post:
+      summary: Pay for a shopping basket
+      description: Process a payment for a shopping basket
+      operationId: payShoppingBasket
+      parameters:
+        - $ref: '#/components/parameters/shoppingBasketIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShoppingBasketPaymentDetails'
+      responses:
+        200:
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingBasketPaymentResponse'
+        404:
+          description: Shopping basket not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                shoppingBasketNotFound:
+                  $ref: '#/components/examples/shoppingBasketNotFoundProblem'
+
+  /centers/{centerId}/shoppingBaskets:
+    post:
+      summary: Create a new shopping basket
+      description: Create a new shopping basket
+      operationId: createShoppingBasket
+      parameters:
+        - $ref: '#/components/parameters/centerIdPathParam'
+      responses:
+        201:
+          description: A new shopping basket created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingBasket'
+        404:
+          description: Center not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                centerNotFound:
+                  $ref: '#/components/examples/centerNotFoundProblem'
+
+  /centers/areas/{areaId}:
+    get:
+      summary: Get list centers and their details based on area Id
+      description: Retrieve a list of centers and their details for a specified area. Use the 'include' parameter to specify additional fields for the centers in the specified area.
+      operationId: getCentersInArea
+      parameters:
+        - $ref: '#/components/parameters/areaIdPathParam'
+        - $ref: '#/components/parameters/pageQueryParam'
+        - $ref: '#/components/parameters/perPageQueryParam'
+        - name: include
+          in: query
+          description: |
+            Comma-separated list of additional fields to include in the response. 
+            Possible values are: 'name', 'shortName', 'webName', 'websiteURL', 'address', 'organizationCode', 
+            'externalId', 'email', 'phoneNumber', 'faxNumber', 'coordinate', 'timeZone', 'generalManager',
+            'startupDate', 'assistantManager', 'extendedAttributes', 'openingSchedule', 'centerStaffedSchedule'.
+            Example: 'generalManager,assistantManager'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Centers based on provided areaId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CentersList'
+
+  /centers/webAppsConfigurations:
+    get:
+      tags:
+        - Centers
+      summary: Retrieve web apps configurations based on scope type and scope ID
+      description: Retrieve configurations for web applications based on the specified scope type (Global, Tree, Area, Center) and scope ID.
+      operationId: getWebAppsConfigurations
+      parameters:
+        - $ref: '#/components/parameters/scopeTypeQueryParam'
+        - $ref: '#/components/parameters/scopeIdQueryParam'
+      responses:
+        200:
+          description: Web apps configurations based on provided scope type and scope id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAppsConfigurations'
+
+components:
+  schemas:
+    CheckInList:
+      type: object
+      description: The wrapper object that contains the list of check-ins/attends and the pagination links.
+      properties:
+        checkins:
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckIn'
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+        page:
+          $ref: '#/components/schemas/Page'
+
+    CheckIn:
+      type: object
+      description: An instance of a check-in or an attend for a given person
+      required:
+        - center
+        - date
+        - personId
+        - startTime
+        - checkinType
+      properties:
+        center:
+          type: integer
+          description: Center where the check-in/attend was registered
+          example:
+            100
+        date:
+          type: string
+          format: date
+          description: Date when the check-in/attend was registered
+          example:
+            2023-11-02
+        personId:
+          type: integer
+          description: Person external ID
+          example:
+            12134
+        roomResource:
+          type: string
+          description: Resource on which the check-in/attend was registered
+          example:
+            SwimmingPool
+        startTime:
+          type: string
+          format: time
+          description: Check-in/attend start time
+          example:
+            13:45
+        checkinType:
+          $ref: '#/components/schemas/CheckInType'
+
+    CheckInType:
+      type: string
+      description: The type of the check-in
+      enum:
+        - ATTEND
+        - CHECKIN
+
+    CashRegisterTransactionType:
+      type: string
+      description: The type of cash register transaction
+      enum:
+        - CASH
+        - CHANGE
+        - RETURN
+        - PAYOUT_CASH
+        - CASH_AR
+        - DEBIT_CARD
+        - CREDIT_CARD
+        - CARD_UNKNOWN
+        - GIFT_CARD
+        - CASH_ADJUST
+        - TRANSFER_BANK_CASH_NOTES
+        - PAYMENT_AR
+        - CUSTOM_PAYMENT_METHOD
+        - CASH_REGISTER_PAYOUT
+        - CREDIT_CARD_ADJUST
+        - CLOSING_CASH_ADJUST
+        - VOUCHER
+        - PAYOUT_CREDIT_CARD
+        - TRANSFER_CASH_REGISTER_CASH
+        - CLOSING_CREDIT_CARD_ADJUST
+        - TRANSFER_BANK_CASH_COINS
+        - INSTALLMENT_PLAN
+        - INITIAL_CASH
+        - MANUAL
+
+    SubscriptionList:
+      type: object
+      description: The wrapper object that contains the list of subscriptions and the pagination links.
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+        page:
+          $ref: '#/components/schemas/Page'
+
+    CentersList:
+      type: object
+      description: The wrapper object that contains the list of center details and the pagination links.
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Center'
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+        page:
+          $ref: '#/components/schemas/Page'
+
+    WebAppsConfigurations:
+      type: array
+      items:
+        $ref: '#/components/schemas/WebAppsConfigurationItem'
+
+    WebAppsConfigurationItem:
+      type: object
+      properties:
+        configurationName:
+          type: string
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              property:
+                type: string
+              value:
+                oneOf:
+                  - type: string
+                  - type: integer
+                  - type: boolean
+
+    SubscriptionAddon:
+      type: object
+      description: The add-on assigned to a subscription.
+      required:
+        - id
+        - startDate
+        - price
+        - product
+      properties:
+        id:
+          type: integer
+          format: subscription-addon-id
+          description: Id of the member's assigned add-on product.
+          example:
+            102
+        startDate:
+          type: string
+          format: date
+          description: Start date of the add-on.
+          example:
+            2018-04-01
+        endDate:
+          type: string
+          format: date
+          description: End date of the add-on.
+          example:
+            2018-09-30
+        price:
+          type: number
+          format: currency
+          description: Price of the add-on.
+        product:
+          $ref: '#/components/schemas/LocalSubscriptionAddonProductSummary'
+        _links:
+          $ref: '#/components/schemas/SubscriptionAddonLinks'
+
+    SubscriptionAddonLinks:
+      type: object
+      description: The links for the add-on.
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+
+    LocalSubscriptionAddonProductSummary:
+      type: object
+      description: The summary information about a local add-on product.
+      required:
+        - id
+        - centerId
+        - name
+        - periodUnit
+        - periodLength
+      properties:
+        id:
+          type: integer
+          format: subscription-addon-product-id
+          description: The id of the add-on product.
+        centerId:
+          type: integer
+          format: center-id
+          description: The id of the center that the add-on product linked to.
+        name:
+          type: string
+          description: Name of the add-on product.
+        periodUnit:
+          type: string
+          description: The period unit for the price on the add-on product.
+          enum:
+            - DAY
+            - WEEK
+            - MONTH
+            - YEAR
+        periodLength:
+          type: integer
+          description: The period length for the price on the add-on product
+        webSalesDescription:
+          $ref: '#/components/schemas/WebSalesDescription'
+
+    EmployeeSummary:
+      type: object
+      required:
+        - employeeId
+        - personId
+        - fullName
+      properties:
+        employeeId:
+          type: string
+          format: employee-id
+          example:
+            100emp123
+        personId:
+          type: string
+          format: person-id
+          description: The person external Id of the employee.
+          example:
+            757
+        fullName:
+          type: string
+          description: Full name of the employee.
+
+    Price:
+      type: object
+      properties:
+        netAmount:
+          type: number
+          format: currency
+        vatAmount:
+          type: number
+          format: currency
+
+    CustomerAndSponsorPrice:
+      type: object
+      properties:
+        customerPrice:
+          $ref: '#/components/schemas/Price'
+        sponsorPrice:
+          $ref: '#/components/schemas/Price'
+
+    SubscriptionNextDeductionInfo:
+      type: object
+      description: Information about next payment info.
+      required:
+        - deductionDate
+        - price
+      properties:
+        deductionDate:
+          type: string
+          format: date
+        price:
+          $ref: '#/components/schemas/CustomerAndSponsorPrice'
+
+    DateInterval:
+      type: object
+      properties:
+        fromDate:
+          type: string
+          format: date
+        toDate:
+          type: string
+          format: date
+
+    SubscriptionPeriodPartType:
+      type: string
+      enum:
+        - NORMAL
+        - CONTRACTUAL_FREEZE
+        - UNRESTRICTED_FREEZE
+        - FREE
+        - UPFRONT_PAYMENT
+        - PRORATED
+
+    GetSubscriptionIncludes:
+      type: string
+      enum:
+        - ASSIGNED_ADDONS
+        - NEXT_DEDUCTION_INFO
+        - PRICE_CHANGES
+        - SALES_EMPLOYEE
+        - PERIOD_PARTS
+        - STATE_CHANGES
+
+    SubscriptionPeriodPart:
+      type: object
+      properties:
+        id:
+          type: string
+          format: subscription-period-part-id
+        type:
+          $ref: '#/components/schemas/SubscriptionPeriodPartType'
+        interval:
+          $ref: '#/components/schemas/DateInterval'
+        subscriptionPrice:
+          type: number
+          format: currency
+        addonPrice:
+          type: number
+          format: currency
+
+    SubscriptionPriceType:
+      type: string
+      enum:
+        - PRORATA
+        - INITIAL
+        - CAMPAIGN
+        - NORMAL
+        - CONVERSION
+        - DOCUMENTATION
+        - PERSON_TYPE
+        - TRANSFER
+        - INDIVIDUAL
+        - SCHEDULED
+        - FAMILY_PERSON_TYPE
+        - FAMILY_SUBSCRIPTION
+        - MANUAL
+
+    SubscriptionPriceChange:
+      type: object
+      properties:
+        id:
+          type: integer
+        price:
+          type: number
+          format: currency
+        type:
+          $ref: '#/components/schemas/SubscriptionPriceType'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        binding:
+          type: boolean
+        entryTime:
+          type: string
+          format: 'date-time'
+        employee:
+          $ref: '#/components/schemas/EmployeeSummary'
+        state:
+          $ref: '#/components/schemas/SubscriptionPriceState'
+
+    SubscriptionPriceState:
+      type: string
+      enum:
+        - NONE
+        - DRAFT
+        - APPROVED
+        - APPLIED
+        - CANCELLED
+        - PENDING
+
+    SubscriptionStateChange:
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/SubscriptionState'
+        entryStartTime:
+          type: string
+          format: 'date-time'
+        entryEndTime:
+          type: string
+          format: 'date-time'
+        bookStartTime:
+          type: string
+          format: 'date-time'
+        bookEndTime:
+          type: string
+          format: 'date-time'
+        employee:
+          $ref: '#/components/schemas/EmployeeSummary'
+
+    Subscription:
+      description: An instance of the subscription a person owns.
+      type: object
+      required:
+        - id
+        - ownerId
+        - state
+        - subState
+        - startDate
+        - price
+        - changeRestrictionEnabled
+      properties:
+        id:
+          type: string
+          format: subscription-id
+          description: The id of the subscription.
+          example:
+            100ss123
+        mainSubscriptionId:
+          type: string
+          format: subscription-id
+          description: The id of the main subscription.
+          example:
+            100ss98
+        ownerId:
+          type: string
+          format: person-id
+          description: The id of the owner of the subscription.
+        state:
+          $ref: '#/components/schemas/SubscriptionState'
+        subState:
+          $ref: '#/components/schemas/SubscriptionSubState'
+        startDate:
+          type: string
+          format: date
+          description: Start date of the subscription.
+          example:
+            2022-03-25
+        endDate:
+          type: string
+          format: date
+          description: End date of the subscription.
+          example:
+            2022-03-24
+        bindingEndDate:
+          type: string
+          format: date
+          description: Binding end date of the subscription.
+          example:
+            2022-09-24
+        billedUntilDate:
+          type: string
+          format: date
+          description: Date until which the subscription is billed.
+          example:
+            2022-04-30
+        price:
+          type: number
+          format: currency
+          description: Price of the subscription.
+          example:
+            949.99
+        paymentAgreementId:
+          type: string
+          format: payment-agreement-id
+          description: The id of the payment agreement that is linked to this subscription.
+          example:
+            100ar123agr456
+        freeDays:
+          type: integer
+          description: Number of free days available on the subscription.
+          example:
+            25
+        freeMonths:
+          type: integer
+          description: Number of free months available on the subscription.
+          example:
+            3
+        changeRestrictionEnabled:
+          type: boolean
+          description: Determines whether changes to the subscription are allowed.
+        product:
+          $ref: '#/components/schemas/LocalSubscriptionProduct'
+        _links:
+          $ref: '#/components/schemas/SubscriptionLinks'
+
+
+    Address:
+      type: object
+      properties:
+        address1:
+          type: string
+          description: The postal address of the member.
+        address2:
+          type: string
+          description: The second postal address of the member.
+        address3:
+          type: string
+          description: The third postal address of the member.
+        coName:
+          type: string
+          description: C/O address name.
+        country:
+          type: string
+          description: The member's home country specified in ISO format, e.g. DK/NO/SE
+        county:
+          type: string
+          description: Some countries have additional counties linked to cities.
+        province:
+          type: string
+          description: The member's province.
+        zip:
+          type: string
+          description: Zip code.
+        zipName:
+          type: string
+          description: City name belonging to the zip code.
+
+    Center:
+      type: object
+      description: An instance of a given center
+      required:
+        - centerId
+        - name
+        - shortName
+        - webName
+        - address
+      properties:
+        centerId:
+          type: integer
+          description: The unique identifier for the center.
+        name:
+          type: string
+          description: The name of the center.
+        shortName:
+          type: string
+          description: The short name of the center.
+        webName:
+          type: string
+          description: The web-friendly name of the center.
+        websiteURL:
+          type: string
+          description: Website of the center.
+        address:
+          $ref: '#/components/schemas/Address'
+        organizationCode:
+          type: string
+          description: Organization code.
+        externalId:
+          type: string
+          description: External ID of the center.
+        email:
+          type: string
+          description: Email of the center.
+        phoneNumber:
+          type: string
+          description: Phone number of the center.
+        faxNumber:
+          type: string
+          description: Fax number of the center.
+        coordinate:
+          $ref: '#/components/schemas/Coordinate'
+        timeZone:
+          type: string
+          description: The ID of the time zone that the center is located in.
+          example: Europe/Copenhagen
+        generalManager:
+          $ref: '#/components/schemas/CenterEmployee'
+        startupDate:
+          type: string
+          format: date
+          description: Opening date.
+          example:
+            'YYYY-MM-DD'
+        assistantManager:
+          $ref: '#/components/schemas/CenterEmployee'
+        extendedAttributes:
+          type: array
+          description: List of extended attributes of the center.
+          items:
+            $ref: '#/components/schemas/CenterExtendedAttribute'
+        openingSchedule:
+          $ref: '#/components/schemas/Schedule'
+        centerStaffedSchedule:
+          $ref: '#/components/schemas/Schedule'
+
+
+    SubscriptionWithAdditionalInfo:
+      allOf:
+        - $ref: '#/components/schemas/Subscription'
+        - type: object
+          properties:
+            additionalInfo:
+              $ref: '#/components/schemas/SubscriptionAdditionalInfo'
+
+    SubscriptionAdditionalInfo:
+      type: object
+      properties:
+        assignedAddons:
+          type: array
+          description: Information on the assigned and active add-ons on subscription.
+          items:
+            $ref: '#/components/schemas/SubscriptionAddon'
+        nextDeductionInfo:
+          $ref: '#/components/schemas/SubscriptionNextDeductionInfo'
+        priceChanges:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionPriceChange'
+        salesEmployee:
+          $ref: '#/components/schemas/EmployeeSummary'
+        periodParts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionPeriodPart'
+        stateChanges:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionStateChange'
+
+    SubscriptionLinks:
+      type: object
+      description: The list of links for the subscription.
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+        owner:
+          $ref: '#/components/schemas/Link'
+        mainSubscription:
+          $ref: '#/components/schemas/Link'
+        paymentAgreement:
+          $ref: '#/components/schemas/Link'
+
+    SubscriptionState:
+      type: string
+      description: The state of the subscription
+      enum:
+        - ACTIVE
+        - CREATED
+        - ENDED
+        - FROZEN
+        - WINDOW
+
+    SubscriptionSubState:
+      type: string
+      description: The sub-state of the subscription
+      enum:
+        - BLOCKED
+        - CANCELLED
+        - CHANGED
+        - DOWNGRADED
+        - EXTENDED
+        - NONE
+        - REGRETTED
+        - TRANSFERRED
+        - UPGRADED
+
+    LocalSubscriptionProduct:
+      type: object
+      required:
+        - id
+        - name
+        - type
+      properties:
+        id:
+          type: string
+          format: subscription-product-id
+          example:
+            100st123
+        name:
+          type: string
+          description: Name of the subscription
+          example:
+            12 Month EFT
+        type:
+          $ref: '#/components/schemas/SubscriptionType'
+        globalId:
+          type: string
+          description: The unique id of the subscription product which cannot be changed after it has been created in Exerp.
+        externalId:
+          type: string
+          description: The unique external id of the subscription product.
+        periodLength:
+          type: integer
+          description: Period count of the subscription product.
+        periodUnit:
+          $ref: '#/components/schemas/TimeUnit'
+        renewalWindow:
+          type: integer
+          description: Renewal window of the subscription product (in days).
+        webSalesDescription:
+          $ref: '#/components/schemas/WebSalesDescription'
+        _links:
+          $ref: '#/components/schemas/LocalSubscriptionProductLinks'
+
+    WebSalesDescription:
+      type: object
+      properties:
+        webName:
+          type: string
+          description: Web name of the product. Support Languages Mapping.
+        description:
+          type: string
+          description: Web description configured on the product. Support Languages Mapping.
+        sellingPoints:
+          type: array
+          description: List of selling points of the product. Support Languages Mapping.
+          items:
+            type: string
+        rank:
+          type: integer
+          description: Web rank of the product.
+
+    LocalSubscriptionProductLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+
+    TimeUnit:
+      type: string
+      description: This enumeration contains the list of time units that currently available.
+      enum:
+        - YEAR
+        - MONTH
+        - WEEK
+        - DAY
+        - HOUR
+        - MINUTE
+        - SECOND
+
+    SubscriptionType:
+      type: string
+      description: Type of a subscription
+      enum:
+        - CASH
+        - EFT
+        - RECURRING_CLIP_CARD
+        - COURSE
+
+    ClipCardList:
+      type: object
+      properties:
+        clipCards:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClipCard'
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+        page:
+          $ref: '#/components/schemas/Page'
+
+    ClipCard:
+      description: An instance of the clip card a member owns
+      type: object
+      required:
+        - id
+        - centerId
+        - status
+        - owner
+        - product
+      properties:
+        id:
+          type: string
+          format: clip-card-id
+          description: The id of the clip card
+          example:
+            100cc123cc456
+        centerId:
+          type: integer
+          format: center-id
+          description: The id of the center of the clip card
+          example:
+            100
+        clipsLeft:
+          type: integer
+          description: The number of clips left on the clip card
+        status:
+          $ref: '#/components/schemas/ClipCardStatus'
+        owner:
+          $ref: '#/components/schemas/PersonSummary'
+        product:
+          $ref: '#/components/schemas/ClipCardProductSummary'
+        _links:
+          $ref: '#/components/schemas/ClipCardLinks'
+
+    ClipCardStatus:
+      type: string
+      description: The status of the clip card
+      enum:
+        - ACTIVE
+        - CANCELLED
+        - FINISHED
+        - BLOCKED
+        - PENDING_ACTIVATION
+        - OVERDUE
+
+    ClipCardProductSummary:
+      type: object
+      description: Summary of clip card product
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: clip-card-product-id
+          description: The id of the clip card product
+          example:
+            100cc123
+        name:
+          type: string
+          description: The name of the clip card product
+        description:
+          type: string
+          description: The description of the clip card product
+        _links:
+          $ref: '#/components/schemas/ClipCardProductSummaryLinks'
+
+    ClipCardProductSummaryLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+
+    Link:
+      type: object
+      description: A link object which might contain, in addition to URI, some additional info about the target link
+      properties:
+        href:
+          type: string
+          format: uri
+
+    PersonSummary:
+      type: object
+      description: Summary of a person
+      required:
+        - id
+        - firstName
+        - lastName
+        - homeCenterId
+      properties:
+        id:
+          type: string
+          format: person-id
+          description: The person id which is the external id.
+        firstName:
+          type: string
+        middleName:
+          type: string
+        lastName:
+          type: string
+        homeCenterId:
+          type: integer
+          format: center-id
+          description: Id of home center of the person.
+        _links:
+          $ref: '#/components/schemas/PersonSummaryLinks'
+
+    ShoppingBasket:
+      description: An instance containing information about a shopping basket.
+      type: object
+      properties:
+        id:
+          type: string
+          format: shopping-basket-id
+          description: The id of the shopping basket
+          example:
+            40dcd6f6-2df2-4b22-afa2-ff7ad0b63c85
+        centerId:
+          type: integer
+          format: center-id
+          example:
+            100
+        _links:
+          $ref: '#/components/schemas/ShoppingBasketLinks'
+
+    ShoppingBasketState:
+      type: string
+      description: The state of the shopping basket
+      enum:
+        - ACTIVE
+        - PARKED
+        - UNPARKED
+        - TIMED_OUT
+        - FINALIZED
+        - DELETED
+
+    SubscriptionClipcard:
+      type: object
+      properties:
+        clipcardTypeName:
+          type: string
+          description: Name of the clip card type
+        initialClips:
+          type: integer
+          description: Amount of clips available per period
+        startupClips:
+          type: integer
+          description: Amount of startup clips sold
+
+    ContractData:
+      type: object
+      properties:
+        contractName:
+          type: string
+          description: Name of the contract
+        contractTemplateId:
+          type: integer
+          description: Id of the template of the contract
+        requiredSignaturesCount:
+          type: integer
+          description: Number of signatures required
+
+    Privilege:
+      type: object
+      required:
+        - sourceName
+        - sourceText
+        - sourceType
+      properties:
+        sourceName:
+          type: string
+          description: Name of the source of the privilege.
+        sourceText:
+          type: string
+          description: Text of the privilege.
+        sourceType:
+          type: string
+          description: Type of the source of the privilege.
+          enum:
+            - ACCESS_PRODUCT
+            - CARD
+            - ADDON
+            - COMPANY_AGREEMENT
+            - RECEIVER_GROUP
+            - SUBSCRIPTION
+            - STARTUP_CAMPAIGN
+            - SHOPPING_BASKET
+
+    ShoppingBasketPaymentDetails:
+      type: object
+      properties:
+        amountPaidByCustomer:
+          type: number
+          format: currency
+          description: Amount which is paid by customer.
+          example:
+            123.52
+        customPaymentMethodId:
+          type: number
+          format: custom-payment-method-id # new format
+          description: ID of the custom Payment Methods.
+          example:
+            2
+        externalPaymentTransactionReference:
+          type: string
+          description: Reference of the external payment which is saved as transaction ID.
+
+    ShoppingBasketPaymentResponse:
+      type: object
+      description: A response object containing details of the payment transaction for a shopping basket.
+      properties:
+        employeeKey:
+          type: string
+          description: Employee who processed the payment.
+          format: employee-id
+          example:
+            100emp5201
+        invoiceLines:
+          type: array
+          description: List of items included in the shopping basket.
+          items:
+            $ref: '#/components/schemas/InvoiceLine'
+        invoiceText:
+          type: string
+          description: Description or notes about the payment transaction.
+        payerKey:
+          type: string
+          description: The person ID of the payer.
+          format: person-id
+          example:
+            169212
+        totalAmount:
+          type: number
+          format: currency
+          description: Total amount paid.
+          example:
+            602.65
+        totalVAT:
+          type: number
+          format: currency
+          description: Total VAT amount included in the payment.
+          example:
+            660.25
+        vatInfos:
+          type: array
+          description: Detailed VAT information for the transaction.
+          items:
+            $ref: '#/components/schemas/VatInfo'
+        salesTaxes:
+          type: array
+          description: Detailed information on all sales taxes applied to the transaction.
+          items:
+            $ref: '#/components/schemas/SalesTax'
+        cashRegisterTransactions:
+          type: array
+          description: List of cash register transactions that includes the payment method details.
+          items:
+            $ref: '#/components/schemas/CashRegisterTransaction'
+
+    ShoppingBasketLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri
+
+    PersonSummaryLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+
+    ClipCardLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+
+    CashRegisterTransaction:
+      type: object
+      description: This object contains information about cash register transaction
+      properties:
+        type:
+          $ref: '#/components/schemas/CashRegisterTransactionType'
+        amount:
+          type: number
+          format: currency
+          description: Amount
+          example:
+            12.34
+
+    InvoiceLine:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the item on the invoice line.
+        amount:
+          type: number
+          format: currency
+          description: Total amount of the invoice line.
+        externalId:
+          type: string
+          description: External identifier of the invoice line.
+        productKey:
+          type: string
+          format: product-id # to-do: check if we're using another unique identifier for product keys
+          description: Key that uniquely identifies the product.
+        purchaserKey:
+          type: string
+          format: person-id
+          description: Key that uniquely identifies the purchaser.
+          example:
+            69213
+        quantity:
+          type: integer
+          description: Number of items purchased.
+        text:
+          type: string
+          description: Product description or additional information.
+        vatInfo:
+          $ref: '#/components/schemas/VatInfo'
+        saleTaxes:
+          type: array
+          description: Detailed information on all sales taxes that are applied to this invoice line.
+          items:
+            $ref: '#/components/schemas/SalesTax'
+
+    VatInfo:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: currency
+          description: VAT amount
+        rate:
+          type: string
+          description: Applied rate
+          example:
+            25%
+
+    SalesTax:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Tax name
+        amount:
+          type: number
+          format: currency
+          description: VAT amount
+        rate: # to-do: check what type this should be
+          type: string
+          description: Applied rate
+          example:
+            25%
+
+    PaginationLinks:
+      type: object
+      properties:
+        next:
+          $ref: '#/components/schemas/Link'
+        previous:
+          $ref: '#/components/schemas/Link'
+        first:
+          $ref: '#/components/schemas/Link'
+        last:
+          $ref: '#/components/schemas/Link'
+
+    Page:
+      type: object
+      description: In paginated response this object provides the page and total info
+      properties:
+        number:
+          type: integer
+          description: The page number
+          example:
+            3
+        perPage:
+          type: integer
+          description: Size of a page
+          example:
+            50
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example:
+            5
+        totalElements:
+          type: integer
+          description: Total number of elements
+
+    Coordinate:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate of the location.
+          example: 55.66796
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate of the location.
+          example: 12.57058
+
+    CenterEmployee:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Employee's email.
+        fullName:
+          type: string
+          description: Employee's full name.
+        personId:
+          type: string
+          format: person-id
+          description: The person external Id.
+          example:
+            757
+
+    ExtendedAttributeValue:
+      nullable: true
+      description: Can be any value, including `null`.
+      oneOf:
+        - type: string # any string
+          description: A regular string of any kind.
+        - type: string # MIME type formats
+          pattern: '^[a-zA-Z0-9]+\/[a-zA-Z0-9.-]+$'
+          description: A MIME type string, such as image/png or application/json.
+        - type: number
+        - type: integer
+        - type: boolean
+        - type: array
+          items: { }
+        - type: object # object (incl. JSON object)
+          additionalProperties: true
+          description: An object of any structure.
+
+    CenterExtendedAttribute:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of the extended attribute
+          example:
+            NAMEofEXTENDEDATTRIBUTE
+        value:
+          $ref: '#/components/schemas/ExtendedAttributeValue'
+      required:
+        - id
+        - value
+
+    Schedule:
+      type: object
+      properties:
+        businessSchedule:
+          $ref: '#/components/schemas/BusinessSchedule'
+        dailySchedule:
+          $ref: '#/components/schemas/DailySchedule'
+        name:
+          type: string
+          description: Name of the schedule
+          example:
+            Business opening hours 2025
+        overrides:
+          $ref: '#/components/schemas/ScheduleOverride'
+        weeklySchedule:
+          $ref: '#/components/schemas/WeeklySchedule'
+
+
+    BusinessSchedule:
+      type: object
+      properties:
+        businessDays:
+          $ref: '#/components/schemas/DateInterval'
+        weekendAndHolidays:
+          $ref: '#/components/schemas/DateInterval'
+
+    DailySchedule:
+      type: object
+      properties:
+        daily:
+          $ref: '#/components/schemas/DateInterval'
+
+    ScheduleOverride:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Date where the override takes place.
+        duration:
+          $ref: '#/components/schemas/DateInterval'
+        id:
+          type: integer
+          format: override-id # new format
+          description: Override ID
+        closedAllDay:
+          type: boolean
+          description: True when the center is closed on the provided date.
+        openAllDay:
+          type: boolean
+          description: True when the center is open on the provided date.
+
+    WeeklySchedule:
+      type: object
+      properties:
+        monday:
+          $ref: '#/components/schemas/DateInterval'
+        tuesday:
+          $ref: '#/components/schemas/DateInterval'
+        wednesday:
+          $ref: '#/components/schemas/DateInterval'
+        thursday:
+          $ref: '#/components/schemas/DateInterval'
+        friday:
+          $ref: '#/components/schemas/DateInterval'
+        saturday:
+          $ref: '#/components/schemas/DateInterval'
+        sunday:
+          $ref: '#/components/schemas/DateInterval'
+
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+          description: An absolute URI that identifies the problem type.
+          default: 'about:blank'
+          example: 'https://www.exerp.com/problem/person_not_found'
+        title:
+          type: string
+          description: A short, summary of the problem type.
+          example:
+            Not Found
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+          example: 404
+        logCorrelationId:
+          type: string
+          example:
+            api-7NMhDOvWtnvJ
+
+  parameters:
+    personIdPathParam:
+      name: personId
+      description: Person id parameter in path. Note that it is the external id, not p number.
+      in: path
+      required: true
+      schema:
+        type: string
+        format: person-id
+
+    areaIdPathParam:
+      name: areaId
+      description: Area id parameter in path.
+      in: path
+      required: true
+      schema:
+        type: string
+
+    pageQueryParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      description: Index of the part of items to return
+
+    perPageQueryParam:
+      name: perPage
+      in: query
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+      description: The number of items to return
+
+    shoppingBasketIdPathParam:
+      name: shoppingBasketId
+      description: Shopping basket id parameter in path
+      in: path
+      required: true
+      schema:
+        type: string
+        format: shopping-basket-id
+
+    centerIdPathParam:
+      name: centerId
+      description: Center id parameter in path.
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: center-id
+
+    scopeTypeQueryParam:
+      name: scopeType
+      in: query
+      required: true
+      description: The scope type for which the configurations are being requested.
+      schema:
+        type: string
+        enum:
+          - Global
+          - Tree
+          - Area
+          - Center
+
+    scopeIdQueryParam:
+      name: scopeId
+      in: query
+      required: true
+      description: The scope ID corresponding to the selected scope type.
+      schema:
+        type: integer
+
+    fromDateQueryParam:
+      name: fromDate
+      in: query
+      schema:
+        type: string
+        format: 'date'
+      description: The date to start the search
+
+    toDateQueryParam:
+      name: toDate
+      in: query
+      schema:
+        type: string
+        format: 'date'
+      description: The date to stop the search
+
+    attendsQueryParam:
+      name: attends
+      in: query
+      schema:
+        type: boolean
+      description: Include attends
+
+    checkInsQueryParam:
+      name: checkIns
+      in: query
+      schema:
+        type: boolean
+      description: Include check ins
+
+    CentersInAreaInclude:
+      name: include
+      in: query
+      description: |
+        Optional comma-separated fields or related resources to include in the response specific to centers in an area.
+        Possible values are: 'name', 'shortName', 'webName', 'websiteURL', 'address', 'organizationCode', 
+        'externalId', 'email', 'phoneNumber', 'faxNumber', 'coordinate', 'timeZone', 'generalManager',
+        'startupDate', 'assistantManager', 'extendedAttributes', 'openingSchedule', 'centerStaffedSchedule'.
+      required: false
+      schema:
+        type: string
+        enum:
+          - name
+          - shortName
+          - webName
+          - websiteURL
+          - address
+          - organizationCode
+          - externalId
+          - email
+          - phoneNumber
+          - faxNumber
+          - coordinate
+          - timeZone
+          - generalManager
+          - startupDate
+          - assistantManager
+          - extendedAttributes
+          - openingSchedule
+          - centerStaffedSchedule
+
+  examples:
+    unhandledProblem:
+      description:
+        This kind of problem is returned if an unexpected error happens on the API call.
+        The example is not repeatedly included in each endpoint as it is possible to return this problem from all endpoint call.
+      value:
+        title: Internal Server Error
+        status: 500
+        logCorrelationId: api-7NMhDOvWtnvJ
+    invalidFormatProblem:
+      description:
+        This kind of problem is returned if the invalid values provided in path parameters or query parameter.
+        The example is not repeatedly included in each endpoint as it is possible to return this problem from all endpoint call.
+      value:
+        type: https://www.exerp.com/problem/invalid_format
+        title: Bad Request
+        status: 400
+        logCorrelationId: api-7NMhDOvWtnvJ
+        parameterType: name
+        parameterValue: some name
+    missingActionProblem:
+      description:
+        The user doesn't have the required action to perform the operation.
+        The example is not repeatedly included in each endpoint as it is possible to return this problem from all endpoint call.
+      value:
+        type: https://www.exerp.com/problem/missing_action
+        title: Forbidden
+        status: 403
+        logCorrelationId: api-7NMhDOvWtnvJ
+        callerId: 100emp1
+        role: EditXXX
+        scope: A123
+    securityProblem:
+      description:
+        This kind of problem is returned when a security related issue happens.
+        The example is not repeatedly included in each endpoint as it is possible to return this problem from all endpoint call.
+      value:
+        type: https://www.exerp.com/problem/security
+        title: Forbidden
+        status: 403
+        logCorrelationId: api-7NMhDOvWtnvJ
+    dbOperationProblem:
+      description:
+        This kind of problem is returned if the DB operation fails.
+        The example is not repeatedly included in each endpoint as it is possible to return this problem from all endpoint call.
+      value:
+        type: https://www.exerp.com/problem/db_operation
+        title: Internal Server Error
+        status: 500
+        logCorrelationId: api-7NMhDOvWtnvJ
+    centerNotFoundProblem:
+      value:
+        type: https://www.exerp.com/problem/center_not_found
+        title: Not Found
+        status: 404
+        logCorrelationId: api-7NMhDOvWtnvJ
+        id: 789
+    shoppingBasketNotFoundProblem:
+      value:
+        type: https://www.exerp.com/problem/shopping_basket_not_found
+        title: Not Found
+        status: 404
+        logCorrelationId: api-7NMhDOvWtnvJ
+        id: 72599df4-66ec-4c4e-ad2a-249ec0e887d4
+    personNotFoundProblem:
+      value:
+        type: https://www.exerp.com/problem/person_not_found
+        title: Not Found
+        status: 404
+        logCorrelationId: api-7NMhDOvWtnvJ
+        id: 757
+    subscriptionNotFoundProblem:
+      value:
+        type: https://www.exerp.com/problem/subscription_not_found
+        title: Not Found
+        status: 404
+        logCorrelationId: api-7NMhDOvWtnvJ
+        id: 100ss123
+
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
